@@ -10,22 +10,22 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 using System.Net.Http;
 
-namespace Allowance
+namespace AllowanceFunctions
 {
-    public static class SetUser
+    public static class SetAccount
     {
 
-        [FunctionName("SetUser")]
+        [FunctionName("SetAccount")]
         public static async Task Run(
-                    [HttpTrigger(AuthorizationLevel.Function, "post", Route = "user"),] HttpRequestMessage req,
-                     [Table("Data")] CloudTable cloudTable,
+                    [HttpTrigger(AuthorizationLevel.Function, "post", Route = "account"),] HttpRequestMessage req,
+                     [Table("Account")] CloudTable cloudTable,
                     ILogger log)
         {
             dynamic body = await req.Content.ReadAsStringAsync();
-            var profile = JsonConvert.DeserializeObject<User>(body as string);
-            var profileEntity = new UserEntity(profile);
+            var profile = JsonConvert.DeserializeObject<Account>(body as string);
+            var profileEntity = new AccountEntity(profile);
 
-            log.LogInformation(message: $"SetUser function processed a request with parameter '{profile.Email}'.");
+            log.LogInformation(message: $"SetAccount function processed a request with parameter '{profile.Email}'.");
 
             var updateOperation = TableOperation.InsertOrReplace(profileEntity);
             var result = await cloudTable.ExecuteAsync(updateOperation);

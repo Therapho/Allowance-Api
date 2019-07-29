@@ -4,24 +4,24 @@ using System.Collections.Generic;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 
-namespace Allowance
+namespace AllowanceFunctions
 {
-    public class User
+    public class Account : Record
     {
         public double Balance { get; set; }
         public string Email { get; set; }
         public string Name { get; set; }
 
     }
-    public class UserEntity : EntityAdapter<User>
+    public class AccountEntity : EntityAdapter<Account>
     {
-      public UserEntity() : base() {}
+      public AccountEntity() : base() {}
 
-      public UserEntity(User user) : base(user){}
+      public AccountEntity(Account Account) : base(Account){}
 
         protected override string BuildPartitionKey()
         {
-            return "User";
+            return "Account";
         }
 
         protected override string BuildRowKey()
