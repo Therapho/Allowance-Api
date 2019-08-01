@@ -22,14 +22,14 @@ namespace AllowanceFunctions
                     ILogger log)
         {
             dynamic body = await req.Content.ReadAsStringAsync();
-            var profile = JsonConvert.DeserializeObject<Account>(body as string);
-            var profileEntity = new AccountEntity(profile);
+            var account = JsonConvert.DeserializeObject<Account>(body as string);
+            var accountRow = new AccountRow(account);
 
-            log.LogInformation(message: $"SetAccount function processed a request with parameter '{profile.Email}'.");
+            log.LogInformation(message: $"SetAccount function processed a request with parameter '{account.Email}'.");
 
-            var updateOperation = TableOperation.InsertOrReplace(profileEntity);
+            var updateOperation = TableOperation.InsertOrReplace(accountRow);
             var result = await cloudTable.ExecuteAsync(updateOperation);
-
+            
         }
     }
 }

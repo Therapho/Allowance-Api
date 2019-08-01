@@ -10,7 +10,7 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 namespace AllowanceFunctions
 {
-    public abstract class EntityAdapter<T> : ITableEntity where T : Record, new()
+    public abstract class EntityAdapter<T> : ITableEntity where T : Entity, new()
     {
         private static readonly object _syncLock = new object();
         private static List<AdditionalPropertyMetadata> _additionalProperties;

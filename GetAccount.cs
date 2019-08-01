@@ -19,12 +19,10 @@ namespace AllowanceFunctions
              [Table("Account")] CloudTable cloudTable,
             ILogger log, CancellationToken ct)
         {
-            string partitionKey = null;
-
+            
             try
             {
                 var mailAddress = new MailAddress(email);
-                partitionKey = mailAddress.Host;
             }
             catch (System.Exception)
             {
@@ -36,17 +34,15 @@ namespace AllowanceFunctions
             
             log.LogInformation($"GetAccount function processed a request with parameter '{email}'.");
 
-            var rangeQuery = new TableQuery<AccountEntity>().Where(
-                TableQuery.CombineFilters(
-                    TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey),
-                    TableOperators.And,
-                    TableQuery.GenerateFilterCondition("Email", QueryComparisons.Equal, email)));
+            var rangeQuery = new TableQuery<AccountRow>().Where(                  
+                TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, email)
+            );
 
             // Execute the query and loop through the results
             var results = await cloudTable.ExecuteQuerySegmentedAsync(rangeQuery, null);
             Account account = null;
-            var AccountEntity = results.FirstOrDefault();
-            if(AccountEntity != null) account = AccountEntity.Value;
+            var accountRow = results.FirstOrDefault();
+            if(accountRow != null) account = accountRow.Entity;
 
             return account;
         }

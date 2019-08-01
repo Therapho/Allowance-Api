@@ -6,27 +6,48 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 namespace AllowanceFunctions
 {
-    public class Account : Record
+    public class Account : Entity
     {
-        public double Balance { get; set; }
+        public string Role { get; set; }
         public string Email { get; set; }
+        public double Balance { get; set; }
+        public string Name { get; set; }
+    }
+    
+    public class AccountRow : TableRow<Account>
+    {
+        public AccountRow() { }
+        public AccountRow(Account account)
+        {
+            MapFromEntity(account);
+        }
+                     
+
+        public double Balance { get; set; }
         public string Name { get; set; }
 
-    }
-    public class AccountEntity : EntityAdapter<Account>
-    {
-      public AccountEntity() : base() {}
-
-      public AccountEntity(Account Account) : base(Account){}
-
-        protected override string BuildPartitionKey()
+        
+        protected override void MapFromEntity(Account account)
         {
-            return "Account";
+            PartitionKey = account.Role;
+            RowKey = account.Email;
+            Balance = account.Balance;
+            Name = account.Name;
+            
         }
 
-        protected override string BuildRowKey()
+        protected override Account MapToEntity()
         {
-            return Value.Email;
+            var account = new Account()
+            {
+                Role = PartitionKey,
+                Email = RowKey,
+                Balance = Balance,
+                Name = Name,
+                LastModifiedOn = Timestamp
+            };
+
+            return account;
         }
     }
 }
