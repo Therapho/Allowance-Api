@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AllowanceFunctions
+namespace AllowanceFunctions.Common
 {
     public abstract class Entity
     {

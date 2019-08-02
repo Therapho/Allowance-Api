@@ -3,11 +3,17 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AllowanceFunctions
+namespace AllowanceFunctions.Common
 {
-    public abstract class TableRow<T> : TableEntity 
-        where T : Entity 
+    public abstract class TableRow<T> : TableEntity
+        where T : Entity
     {
+        public TableRow() {}
+        public TableRow(T entity)
+        {
+            MapFromEntity(entity);
+        }
+
         public T Entity
         {
             get

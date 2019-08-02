@@ -1,12 +1,13 @@
 
 using System;
 using System.Collections.Generic;
+using AllowanceFunctions.Common;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 
-namespace AllowanceFunctions
+namespace AllowanceFunctions.Entities
 {
-    public class Account : Entity
+    public class AccountEntity : Entity
     {
         public string Role { get; set; }
         public string Email { get; set; }
@@ -14,20 +15,17 @@ namespace AllowanceFunctions
         public string Name { get; set; }
     }
     
-    public class AccountRow : TableRow<Account>
+    public class AccountRow : TableRow<AccountEntity>
     {
         public AccountRow() { }
-        public AccountRow(Account account)
-        {
-            MapFromEntity(account);
-        }
+        public AccountRow(AccountEntity account) : base(account) { }
                      
 
         public double Balance { get; set; }
         public string Name { get; set; }
 
         
-        protected override void MapFromEntity(Account account)
+        protected override void MapFromEntity(AccountEntity account)
         {
             PartitionKey = account.Role;
             RowKey = account.Email;
@@ -36,9 +34,9 @@ namespace AllowanceFunctions
             
         }
 
-        protected override Account MapToEntity()
+        protected override AccountEntity MapToEntity()
         {
-            var account = new Account()
+            var account = new AccountEntity()
             {
                 Role = PartitionKey,
                 Email = RowKey,

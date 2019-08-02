@@ -8,13 +8,14 @@ using System.Threading;
 using System.Linq;
 using System.Net.Mail;
 using System;
+using AllowanceFunctions.Entities;
 
 namespace AllowanceFunctions
 {
     public static class GetAccount
     {
         [FunctionName("GetAccount")]
-        public static async Task<Account> Run(
+        public static async Task<AccountEntity> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "account/{email}"),] HttpRequest req, string email,
              [Table("Account")] CloudTable cloudTable,
             ILogger log, CancellationToken ct)
@@ -40,7 +41,7 @@ namespace AllowanceFunctions
 
             // Execute the query and loop through the results
             var results = await cloudTable.ExecuteQuerySegmentedAsync(rangeQuery, null);
-            Account account = null;
+            AccountEntity account = null;
             var accountRow = results.FirstOrDefault();
             if(accountRow != null) account = accountRow.Entity;
 

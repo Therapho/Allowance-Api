@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using Microsoft.WindowsAzure.Storage.Table;
 
 using System.Net.Http;
+using AllowanceFunctions.Entities;
 
 namespace AllowanceFunctions
 {
@@ -22,7 +23,7 @@ namespace AllowanceFunctions
                     ILogger log)
         {
             dynamic body = await req.Content.ReadAsStringAsync();
-            var account = JsonConvert.DeserializeObject<Account>(body as string);
+            var account = JsonConvert.DeserializeObject<AccountEntity>(body as string);
             var accountRow = new AccountRow(account);
 
             log.LogInformation(message: $"SetAccount function processed a request with parameter '{account.Email}'.");
