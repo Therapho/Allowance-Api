@@ -4,10 +4,9 @@ using System.Text;
 
 namespace AllowanceFunctions.Common
 {
-    public abstract class Entity
+    public class Lookup
     {
-
-        public DateTimeOffset LastModifiedOn { get; set; }
-        
+        public int Id { get; set; }
+        public string Name { get; set; }
     }
 }
