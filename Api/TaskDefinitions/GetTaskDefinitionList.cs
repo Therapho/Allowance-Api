@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AllowanceFunctions.Api.TaskDefinitions
+namespace AllowanceFunctions.Api.TaskDefinitionSet
 {
     public class GetTaskDefinitionList : Function
     {
@@ -19,13 +19,13 @@ namespace AllowanceFunctions.Api.TaskDefinitions
         public async Task<List<TaskDefinition>> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "taskdefinitionset"), ] HttpRequest req, ILogger log)
         {
-            Initialize(log,"GetTaskList function processed a request.");
+            log.LogTrace("GetTaskList function processed a request.");
 
-            var query = from taskDefinition in _context.TaskDefinitions
+            var query = from taskDefinition in _context.TaskDefinitionSet
                         orderby taskDefinition.Sequence
                         select taskDefinition;
 
-            return query.ToList();
+            return await query.ToListAsync();
         }
     }
 }

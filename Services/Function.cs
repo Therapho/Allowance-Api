@@ -13,11 +13,7 @@ namespace AllowanceFunctions.Services
         {
             _context = context;
         }
-
-        protected void Initialize(ILogger log, string message)
-        {
-            log.LogInformation(message);
-        }
-
+  
+        
     }
 }

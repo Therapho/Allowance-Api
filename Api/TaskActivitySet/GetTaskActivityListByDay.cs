@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AllowanceFunctions.Api.TaskDefinitions
+namespace AllowanceFunctions.Api.TaskActivitySet
 {
     public class GetTaskActivityListByDay : Function    
     {
@@ -19,14 +19,14 @@ namespace AllowanceFunctions.Api.TaskDefinitions
         public async Task<List<TaskActivity>> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "taskactivityset/{taskdayid}"),] HttpRequest req, int taskdayid, ILogger log)
         {
-            Initialize(log, $"GetTaskActivityListByDay function processed a request for taskdayid={taskdayid}.");
+            log.LogTrace($"GetTaskActivityListByDay function processed a request for taskdayid={taskdayid}.");
 
             var query = from taskActivity in _context.TaskActivitySet
                         where taskActivity.TaskDayId == taskdayid
                         orderby taskActivity.Sequence
                         select taskActivity;
 
-            return query.ToList();
+            return await query.ToListAsync();
         }
     }
 }

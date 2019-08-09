@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace AllowanceFunctions.Entities
 {
+    [Table("taskactivities")]
     public class TaskActivity
     {
         public int Id { get; set; }
@@ -13,7 +15,7 @@ namespace AllowanceFunctions.Entities
         public bool Blocked { get; set; }
         public decimal Value { get; set; }
 
-        public int ForAccountId { get; set; }
+        public int AccountId { get; set; }
         public int TaskDayId { get; set; }
         public int Sequence { get; set; }
     }

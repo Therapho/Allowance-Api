@@ -12,18 +12,18 @@ using System.Net.Mail;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AllowanceFunctions.Api.Accounts
+namespace AllowanceFunctions.Api.AccountSet
 {
     public class GetAccount : Function
     {
         public GetAccount(DatabaseContext context) : base(context) { }
 
-        [FunctionName("GetAccount")]
+        [FunctionName("GetAccountByEmail")]
         public async Task<Account> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "account/{email}"),] HttpRequest req, string email,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "accountset/{email}"),] HttpRequest req, string email,
             ILogger log, CancellationToken ct)
         {
-            Initialize(log, $"GetAccount function processed a request with parameter '{email}'.");
+            log.LogTrace($"GetAccount function processed a request with parameter '{email}'.");
 
             try
             {
@@ -35,9 +35,9 @@ namespace AllowanceFunctions.Api.Accounts
                 throw new ArgumentException($"Email {email} is not a valid email address");
             }
                        
-            var query = from account in _context.Accounts where account.Username == email select account;
+            var query = from account in _context.AccountSet where account.Username == email select account;
             
-            return query.FirstOrDefault();
+            return await query.FirstOrDefaultAsync();
         }
 
 

@@ -1,5 +1,8 @@
-﻿namespace AllowanceFunctions.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace AllowanceFunctions.Entities
 {
+    [Table("taskdefinitions")]
     public class TaskDefinition
     {
         public int Id { get; set; }

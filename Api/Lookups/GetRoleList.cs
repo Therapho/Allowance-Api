@@ -21,7 +21,7 @@ namespace AllowanceFunctions.Api.Lookups
         public async Task<List<Role>> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "lookups/roleset"), ] HttpRequest req, ILogger log)
         {
-            return RunInternal(log);
+            return await RunInternal(log);
         }
     }
 }

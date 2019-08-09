@@ -9,9 +9,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace AllowanceFunctions.Api.TaskActivities
+namespace AllowanceFunctions.Api.TaskActivitySet
 {
     public class SetTaskActivityList : Function
     {
@@ -19,12 +20,22 @@ namespace AllowanceFunctions.Api.TaskActivities
 
         [FunctionName("SetTaskActivityList")]
         public async Task Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "taskactivityset"),] HttpRequest req, ILogger log)
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "taskactivityset"),] HttpRequest req, ILogger log, CancellationToken ct)
         {
-            Initialize(log, $"SetTaskActivityList function processed a request.");
+            log.LogTrace($"SetTaskActivityList function processed a request.");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var data = JsonConvert.DeserializeObject<List<TaskActivity>>(requestBody);
+            try
+            {
+                await _context.AddRangeAsync(data);
+                await _context.SaveChangesAsync(ct);
+            }
+            catch (Exception exception)
+            {
+
+                log.LogError($"Exception {exception.Message} occurred");
+            }
 
         }
     }

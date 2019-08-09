@@ -17,14 +17,14 @@ namespace AllowanceFunctions.Common
         protected LookupService(DatabaseContext context) : base(context) { }
 
         [FunctionName("GetList")]
-        protected List<TEntity> RunInternal(ILogger log)
+        protected async Task< List<TEntity>> RunInternal(ILogger log)
         {
-            Initialize(log, "GetRoleList function processed a request.");
+            log.LogTrace("GetRoleList function processed a request.");
 
             var query = from entity in _context.Set<TEntity>()
                         select entity;
 
-            return query.ToList();
+            return await query.ToListAsync();
         }
 
     }

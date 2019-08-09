@@ -18,15 +18,16 @@ namespace AllowanceFunctions
             builder.Services.AddHttpClient();
             string connectionString = System.Environment.GetEnvironmentVariable($"ConnectionStrings:SQLConnectionString", EnvironmentVariableTarget.Process);
 
-            var optionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();
-            optionsBuilder.UseSqlServer(connectionString);
-            var options = optionsBuilder.Options;
-            var context = new DatabaseContext(options);
+            //var optionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();
+            //optionsBuilder.UseSqlServer(connectionString);
+            //var options = optionsBuilder.Options;
+            //var context = new DatabaseContext(options);
 
-            builder.Services.AddSingleton((s) => {
-                return context;
-            });
-            
+            //builder.Services.AddSingleton((s) => {
+            //    return context;
+            //});
+            builder.Services.AddDbContext<DatabaseContext>(
+                options => SqlServerDbContextOptionsExtensions.UseSqlServer(options, connectionString));
         }
     }
 }
