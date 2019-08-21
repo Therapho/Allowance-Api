@@ -18,7 +18,7 @@ namespace AllowanceFunctions.Api.Lookups
 
         [FunctionName("GetTransactionCategoryList")]
         public async Task<List<TransactionCategory>> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "lookups/transactioncategoryset"),] HttpRequest req, ILogger log)
+            [HttpTrigger(Constants.AUTHORIZATION_LEVEL, "get", Route = "lookups/transactioncategoryset"),] HttpRequest req, ILogger log)
         {
             return await RunInternal(log);
         }

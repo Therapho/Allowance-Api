@@ -20,7 +20,7 @@ namespace AllowanceFunctions.Api.TaskWeekSet
 
         [FunctionName("GetTaskWeekList")]
         public async Task<List<TaskWeek>> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "taskweekset")] HttpRequest req, ILogger log)
+            [HttpTrigger(Constants.AUTHORIZATION_LEVEL, "get", Route = "taskweekset")] HttpRequest req, ILogger log)
         {
             
             var dateStart = req.Query.GetValueOrDefault<DateTime>("startdate");

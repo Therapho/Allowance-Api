@@ -18,7 +18,7 @@ namespace AllowanceFunctions.Api.Lookups
 
         [FunctionName("GetTaskGroupList")]
         public async Task<List<TaskGroup>> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "lookups/taskgroupset"), ] HttpRequest req, ILogger log)
+            [HttpTrigger(Constants.AUTHORIZATION_LEVEL, "get", Route = "lookups/taskgroupset"), ] HttpRequest req, ILogger log)
         {
             return await RunInternal(log);
         }

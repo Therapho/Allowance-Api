@@ -15,11 +15,11 @@ using System.Threading.Tasks;
 
 namespace AllowanceFunctions.Api.TaskActivitySet
 {
-    public class SetTaskActivityList : Function
+    public class PutTaskActivityList : Function
     {
-        public SetTaskActivityList(DatabaseContext context) : base(context) { }
+        public PutTaskActivityList(DatabaseContext context) : base(context) { }
 
-        [FunctionName("SetTaskActivityList")]
+        [FunctionName("PutTaskActivityList")]
         public async Task Run(
             [HttpTrigger(Constants.AUTHORIZATION_LEVEL, "post", Route = "taskactivityset"),] HttpRequest req, ILogger log, CancellationToken ct)
         {

@@ -1,3 +1,4 @@
+using AllowanceFunctions.Common;
 using AllowanceFunctions.Entities;
 using AllowanceFunctions.Services;
 using Microsoft.AspNetCore.Http;
@@ -20,7 +21,7 @@ namespace AllowanceFunctions.Api.AccountSet
 
         [FunctionName("GetAccountByEmail")]
         public async Task<Account> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "accountset/{email}"),] HttpRequest req, string email,
+            [HttpTrigger(Constants.AUTHORIZATION_LEVEL, "get", Route = "accountset/{email}"),] HttpRequest req, string email,
             ILogger log, CancellationToken ct)
         {
             log.LogTrace($"GetAccount function processed a request with parameter '{email}'.");

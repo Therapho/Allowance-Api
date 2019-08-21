@@ -1,3 +1,4 @@
+using AllowanceFunctions.Common;
 using AllowanceFunctions.Entities;
 using AllowanceFunctions.Services;
 using Microsoft.AspNetCore.Http;
@@ -17,7 +18,7 @@ namespace AllowanceFunctions.Api.TaskDefinitionSet
 
         [FunctionName("GetTaskDefinitionList")]
         public async Task<List<TaskDefinition>> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "taskdefinitionset"), ] HttpRequest req, ILogger log)
+            [HttpTrigger(Constants.AUTHORIZATION_LEVEL, "get", Route = "taskdefinitionset"), ] HttpRequest req, ILogger log)
         {
             log.LogTrace("GetTaskList function processed a request.");
 

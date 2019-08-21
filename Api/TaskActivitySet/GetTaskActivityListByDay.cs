@@ -1,4 +1,5 @@
-﻿using AllowanceFunctions.Entities;
+﻿using AllowanceFunctions.Common;
+using AllowanceFunctions.Entities;
 using AllowanceFunctions.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs;
@@ -17,7 +18,7 @@ namespace AllowanceFunctions.Api.TaskActivitySet
 
         [FunctionName("GetTaskActivityListByDay")]
         public async Task<List<TaskActivity>> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "taskactivityset/{taskdayid}"),] HttpRequest req, int taskdayid, ILogger log)
+            [HttpTrigger(Constants.AUTHORIZATION_LEVEL, "get", Route = "taskactivityset/{taskdayid}"),] HttpRequest req, int taskdayid, ILogger log)
         {
             log.LogTrace($"GetTaskActivityListByDay function processed a request for taskdayid={taskdayid}.");
 

@@ -12,23 +12,22 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AllowanceFunctions.Api.TaskWeekSet
+namespace AllowanceFunctions.Api.AccountSet
 {
-    public class PutTaskWeek : Function
+    public class PutAccount : Function
     {
-        public PutTaskWeek(DatabaseContext context) : base(context) { }
+        public PutAccount(DatabaseContext context) : base(context) { }
 
-        [FunctionName("PutTaskWeek")]
+        [FunctionName("PutAccount")]
         public async Task<int> Run(
-            [HttpTrigger(Constants.AUTHORIZATION_LEVEL, "put", Route = "taskweekset/{id?}")] HttpRequest req, ILogger log, CancellationToken ct, int? id )
+            [HttpTrigger(Constants.AUTHORIZATION_LEVEL, "put", Route = "accountset/{id?}")] HttpRequest req, ILogger log, CancellationToken ct, int? id)
         {
-            log.LogTrace($"PutTaskWeek function processed a request for id:{id}.");
-           
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var data = JsonConvert.DeserializeObject<TaskWeek>(requestBody);
-            //data.WeekStartDate = data.WeekStartDate.FirstDayOfWeek();
+            log.LogTrace($"PutAccount function processed a request for id:{id}.");
 
-            if(id.HasValue) Ensure.That(data.Id = id.Value);
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            var data = JsonConvert.DeserializeObject<Account>(requestBody);
+
+            if (id.HasValue) Ensure.That(data.Id = id.Value);
 
             try
             {

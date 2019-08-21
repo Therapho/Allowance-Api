@@ -19,7 +19,7 @@ namespace AllowanceFunctions.Api.TaskDaySet
 
         [FunctionName("GetTaskDay")]
         public async Task<List<TaskDay>> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "taskdayset")] HttpRequest req, ILogger log)
+            [HttpTrigger(Constants.AUTHORIZATION_LEVEL, "get", Route = "taskdayset")] HttpRequest req, ILogger log)
         {
             var accountId = req.Query.GetValueOrDefault<int>("accountid");
             var taskWeekId = req.Query.GetValueOrDefault<int>("taskweekid");

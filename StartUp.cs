@@ -16,8 +16,9 @@ namespace AllowanceFunctions
         public override void Configure(IFunctionsHostBuilder builder)
         {
             builder.Services.AddHttpClient();
-            string connectionString = System.Environment.GetEnvironmentVariable($"ConnectionStrings:SQLConnectionString", EnvironmentVariableTarget.Process);
-
+            string connectionString = Environment.GetEnvironmentVariable("SQLConnectionString");
+            //string connectionString = System.Environment.GetEnvironmentVariable($"ConnectionStrings:SQLConnectionString", EnvironmentVariableTarget.Process);
+            if (string.IsNullOrEmpty(connectionString)) throw new NullReferenceException("ConnectionString not found");
             //var optionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();
             //optionsBuilder.UseSqlServer(connectionString);
             //var options = optionsBuilder.Options;

@@ -20,7 +20,7 @@ namespace AllowanceFunctions.Api.TaskDaySet
 
         [FunctionName("PutTaskDay")]
         public async Task<int> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "put", Route = "taskdayset/{id?}")] HttpRequest req, ILogger log, CancellationToken ct, int? id )
+            [HttpTrigger(Constants.AUTHORIZATION_LEVEL, "put", Route = "taskdayset/{id?}")] HttpRequest req, ILogger log, CancellationToken ct, int? id )
         {
             log.LogTrace($"PutTaskDay function processed a request for id:{id}.");
            
