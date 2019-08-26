@@ -15,6 +15,7 @@ namespace AllowanceFunctions.Common
 
         public static T GetValue<T>(this IQueryCollection query, string parameterName) 
         {
+            if (!query.ContainsKey(parameterName)) return default(T);
             string stringValue = query[parameterName];
             T convertedValue = (T)Convert.ChangeType(stringValue, typeof(T));
             return convertedValue;

@@ -8,7 +8,7 @@ namespace AllowanceFunctions.Entities
     [Table("taskactivities")]
     public class TaskActivity
     {
-        public int Id { get; set; }
+        public int? Id { get; set; }
         public string Description { get; set; }
         public int TaskGroupId { get; set; }
         public bool Completed { get; set; }
@@ -18,5 +18,6 @@ namespace AllowanceFunctions.Entities
         public int AccountId { get; set; }
         public int TaskDayId { get; set; }
         public int Sequence { get; set; }
+        public int TaskWeekId { get; set; }
     }
 }

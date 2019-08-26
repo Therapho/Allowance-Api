@@ -6,6 +6,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,13 +20,15 @@ namespace AllowanceFunctions.Api.TaskActivitySet
     {
         public PutTaskActivityList(DatabaseContext context) : base(context) { }
 
-        [FunctionName("PutTaskActivityList")]
+        [FunctionName("PutTaskActivitySet")]
         public async Task Run(
-            [HttpTrigger(Constants.AUTHORIZATION_LEVEL, "post", Route = "taskactivityset"),] HttpRequest req, ILogger log, CancellationToken ct)
+            [HttpTrigger(Constants.AUTHORIZATION_LEVEL, "put", Route = "taskactivityset"),] HttpRequest req, ILogger log, CancellationToken ct)
         {
             log.LogTrace($"SetTaskActivityList function processed a request.");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            if (!requestBody.Contains("[")) requestBody = $"[{requestBody}]";
+
             var data = JsonConvert.DeserializeObject<List<TaskActivity>>(requestBody);
             try
             {
@@ -36,6 +39,7 @@ namespace AllowanceFunctions.Api.TaskActivitySet
             {
 
                 log.LogError($"Exception {exception.Message} occurred");
+                throw;
             }
 
         }

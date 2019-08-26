@@ -38,6 +38,7 @@ namespace AllowanceFunctions.Api.AccountSet
             {
 
                 log.LogError($"Exception {exception.Message} occurred");
+                throw;
             }
             return data.Id.Value;
         }
