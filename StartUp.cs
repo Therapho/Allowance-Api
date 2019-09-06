@@ -29,6 +29,11 @@ namespace AllowanceFunctions
             //});
             builder.Services.AddDbContext<DatabaseContext>(
                 options => SqlServerDbContextOptionsExtensions.UseSqlServer(options, connectionString));
+            builder.Services
+                .AddTransient<TaskWeekService>()
+                .AddTransient<TaskDefinitionService>()
+                .AddTransient<TaskDayService>()
+                .AddTransient<TaskActivityService>();
         }
     }
 }

@@ -4,9 +4,8 @@ using System.Text;
 
 namespace AllowanceFunctions.Common
 {
-    public abstract class Lookup : Entity
+    public abstract class Entity
     {
-        
-        public string Name { get; set; }
+        public int? Id { get; set; }
     }
 }

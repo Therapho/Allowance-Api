@@ -1,4 +1,5 @@
-﻿using AllowanceFunctions.Entities;
+﻿using AllowanceFunctions.Common;
+using AllowanceFunctions.Entities;
 using AllowanceFunctions.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs;
@@ -9,7 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AllowanceFunctions.Common
+
+namespace AllowanceFunctions.Services
 {
     public abstract class LookupService<TEntity> : Function where TEntity : Lookup
     {

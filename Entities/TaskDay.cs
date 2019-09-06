@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AllowanceFunctions.Common;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
@@ -6,9 +7,9 @@ using System.Text;
 namespace AllowanceFunctions.Entities
 {
     [Table("taskdays")]
-    public class TaskDay
+    public class TaskDay : Entity
     {
-        public int? Id { get; set; }
+
         public DateTime Date { get; set; }
         public int StatusId { get; set; }
         public int TaskWeekId { get; set; }

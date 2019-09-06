@@ -42,12 +42,6 @@ namespace AllowanceFunctions.Api.TaskActivitySet
             }
             catch (Exception exception)
             {
-
-                //throw new HttpResponseException(new HttpResponseMessage(HttpStatusCode.BadRequest)
-                //{
-                //    Content = new StringContent($"Error trying to execute GetActivityList with TaskWeekId:{taskWeekId}.  {exception.Message}"),
-                //    ReasonPhrase = "Unknown"
-                //});
                
                 return new BadRequestObjectResult($"Error trying to execute GetActivityList with TaskWeekId:{taskWeekId}.  {exception.Message}");
             }

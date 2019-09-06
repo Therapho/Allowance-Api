@@ -1,11 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using AllowanceFunctions.Common;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AllowanceFunctions.Entities
 {
     [Table("taskdefinitions")]
-    public class TaskDefinition
+    public class TaskDefinition : Entity
     {
-        public int Id { get; set; }
         public int TaskGroupId { get; set; }
         public string Description { get; set; }
         public decimal Value { get; set; }

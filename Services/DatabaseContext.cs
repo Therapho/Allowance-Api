@@ -25,5 +25,7 @@ namespace AllowanceFunctions.Services
         public DbSet<TaskDay> TaskDaySet { get; set; }
         public DbSet<TaskWeek> TaskWeekSet { get; set; }
         public DbSet<TransactionLog> TransactionLogSet { get; set; }
+
+        public DbSet<ActivityStatus> ActivityStatusSet { get; set; }
     }
 }

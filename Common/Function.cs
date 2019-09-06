@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using AllowanceFunctions.Services;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AllowanceFunctions.Services
+namespace AllowanceFunctions.Common
 {
     public abstract class Function
     {
