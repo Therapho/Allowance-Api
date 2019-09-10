@@ -37,6 +37,7 @@ namespace AllowanceFunctions.Api.TaskActivitySet
             var startDate = req.Query.GetValue<DateTime>("weekdstartdate").StartOfDay();
 
             var accountId = req.Query.GetValue<int>("accountid");
+            var taskWeekId = req.Query.GetValue<int>("taskweekid");
 
             log.LogTrace($"GetTaskActivityListByDay function processed a request for taskWeekId={accountId}, startDate={startDate}.");
 
@@ -45,7 +46,13 @@ namespace AllowanceFunctions.Api.TaskActivitySet
             try
 
             {
-                var taskWeek = await _taskWeekService.GetOrCreate(accountId, startDate);
+                TaskWeek taskWeek = null;
+
+                if (taskWeekId > 0)
+                    taskWeek= await _taskWeekService.Get(taskWeekId);
+                else
+                    taskWeek=await _taskWeekService.GetOrCreate(accountId, startDate);
+
                 taskActivityList = await  _taskActivityService.GetList(accountId, taskWeek.Id.Value);
 
                 if (taskActivityList == null) taskActivityList = new List<TaskActivity>();

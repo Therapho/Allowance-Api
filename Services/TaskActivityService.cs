@@ -52,6 +52,7 @@ namespace AllowanceFunctions.Services
                         Description = taskDefinition.Description,
                         Sequence = taskDefinition.Sequence,
                         Value = taskDefinition.Value,
+                        StatusId = (int)Constants.ActivityStatus.Incomplete
                         
                     };
                     taskActivityList.Add(taskActivity);

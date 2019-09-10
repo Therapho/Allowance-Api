@@ -32,7 +32,7 @@ namespace AllowanceFunctions.Api.TaskActivitySet
             var data = JsonConvert.DeserializeObject<List<TaskActivity>>(requestBody);
             try
             {
-                await _context.AddRangeAsync(data);
+                _context.UpdateRange(data);
                 await _context.SaveChangesAsync(ct);
             }
             catch (Exception exception)
