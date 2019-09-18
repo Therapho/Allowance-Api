@@ -16,21 +16,23 @@ namespace AllowanceFunctions.Api.TaskDefinitionSet
 {
     public class GetTaskDefinitionList : Function
     {
-        public GetTaskDefinitionList(DatabaseContext context) : base(context) { }
+        private TaskDefinitionService _taskDefinitionService;
+
+        public GetTaskDefinitionList(TaskDefinitionService taskDefinitionService) : base() { _taskDefinitionService = taskDefinitionService; }
 
         [FunctionName("GetTaskDefinitionList")]
         public async Task<IActionResult> Run(
             [HttpTrigger(Constants.AUTHORIZATION_LEVEL, "get", Route = "taskdefinitionset"), ] HttpRequest req, ILogger log)
         {
             log.LogTrace("GetTaskList function processed a request.");
-            var query = from taskDefinition in _context.TaskDefinitionSet
-                        orderby taskDefinition.Sequence
-                        select taskDefinition;
+            
 
             List<TaskDefinition> result = null;
             try
             {
-                result = await query.ToListAsync();
+                result = await _taskDefinitionService.GetList();
+
+               
             }
             catch (Exception exception)
             {

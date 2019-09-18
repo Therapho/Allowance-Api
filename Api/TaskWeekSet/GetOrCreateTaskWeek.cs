@@ -9,20 +9,21 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
 using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace AllowanceFunctions.Api.TaskWeekSet
 {
-    public class GetOrCreateTaskWeek
+    public class GetOrCreateTaskWeek : Function
     {
         private TaskWeekService _taskWeekService;
         private TaskDefinitionService _taskDefinitonService;
         private TaskDayService _taskDayService;
         private TaskActivityService _taskActivityService;
 
-        public GetOrCreateTaskWeek(TaskWeekService taskWeekService, TaskDefinitionService taskDefinitionService,
-            TaskDayService taskDayService, TaskActivityService taskActivityService)
+        public GetOrCreateTaskWeek(AuthorizationService authorizationService, TaskWeekService taskWeekService, TaskDefinitionService taskDefinitionService,
+            TaskDayService taskDayService, TaskActivityService taskActivityService) : base(authorizationService)
         {
             _taskWeekService = taskWeekService;
             _taskDefinitonService = taskDefinitionService;
@@ -33,23 +34,24 @@ namespace AllowanceFunctions.Api.TaskWeekSet
         public async Task<IActionResult> Run(
              [HttpTrigger(Constants.AUTHORIZATION_LEVEL, "get", Route = "getorcreatetaskweek"),] HttpRequest req, ILogger log)
         {
-            Ensure.That(req.Query.ContainsKey("startdate")).IsTrue();
-            Ensure.That(req.Query.ContainsKey("accountid")).IsTrue();
 
-
+            var userIdentifier = req.GetUserIdentifier();
             var startDate = req.Query.GetValue<DateTime>("startdate").StartOfDay();
-
-            var accountId = req.Query.GetValue<int>("accountid");
-
-            log.LogTrace($"GetTaskActivityListByDay function processed a request for taskWeekId={accountId}, startDate={startDate}.");
+            log.LogTrace($"GetTaskActivityListByDay function processed a request for userIdentifier={userIdentifier}, startDate={startDate}.");
 
             TaskWeek taskWeek = null;
 
             try
 
             {
-                taskWeek = await _taskWeekService.GetOrCreate(accountId, startDate);
-                await _taskDayService.GetOrCreateList(accountId, taskWeek);
+                Ensure.That(req.Query.ContainsKey("startdate")).IsTrue();
+                
+                taskWeek = await _taskWeekService.GetOrCreate(userIdentifier, startDate);
+                if (taskWeek.UserIdentifier != userIdentifier && ! await IsInRole(userIdentifier, Constants.Role.Parent))
+                {
+                    throw new SecurityException("Invalid attempt to access a record by an invalid user");
+                }
+                await _taskDayService.GetOrCreateList(userIdentifier, taskWeek);
             }
 
             catch (Exception exception)

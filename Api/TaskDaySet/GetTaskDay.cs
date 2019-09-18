@@ -10,28 +10,47 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AllowanceFunctions.Common;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Security;
 
 namespace AllowanceFunctions.Api.TaskDaySet
 {
-    public class GetTaskDay : Function
+    public class GetTaskDayList : Function
     {
-        public GetTaskDay(DatabaseContext context) : base(context) { }
+        private TaskDayService _taskDayService;
 
-        [FunctionName("GetTaskDay")]
-        public async Task<List<TaskDay>> Run(
+        public GetTaskDayList(AuthorizationService authorizationService, TaskDayService taskDayService)
+            : base(authorizationService) { _taskDayService = taskDayService; }
+
+        [FunctionName("GetTaskDayList")]
+        public async Task<IActionResult> Run(
             [HttpTrigger(Constants.AUTHORIZATION_LEVEL, "get", Route = "taskdayset")] HttpRequest req, ILogger log)
         {
-            var accountId = req.Query.GetValueOrDefault<int>("accountid");
-            var taskWeekId = req.Query.GetValueOrDefault<int>("taskweekid");
+            List<TaskDay> result = null;
+            try
+            {
+                var callingUserIdentifier = req.GetUserIdentifier();
 
-            log.LogTrace($"GetTaskDayByTaskWeek triggered with taskWeekId={taskWeekId} && accountid={accountId}");
-         
-            var query = from taskday in _context.TaskDaySet
-                        where taskday.TaskWeekId == taskWeekId && taskday.AccountId == accountId
-                        orderby taskday.Date
-                        select taskday;
+                var taskWeekId = req.Query.GetValueOrDefault<int>("taskweekid");
 
-            return await query.ToListAsync();
+                log.LogTrace($"GetTaskDay triggered with taskWeekId={taskWeekId} by userIdentifier={callingUserIdentifier}");
+
+                result = await _taskDayService.GetByTaskWeek(taskWeekId.Value);
+                
+                if (result != null && result.Count > 0 
+                    && callingUserIdentifier != result[0].UserIdentifier 
+                    && !await IsParent(req))
+                    throw new SecurityException("Invalid attempt to access taskDayList.  User not permitted.");
+
+            }
+            catch (Exception exception)
+            {
+
+                return new BadRequestObjectResult($"Error trying to execute GetTaskDay.  {exception.Message}");
+            }
+
+            return new OkObjectResult(result);
         }
     }
 }

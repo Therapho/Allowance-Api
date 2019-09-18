@@ -2,12 +2,14 @@ using AllowanceFunctions.Common;
 using AllowanceFunctions.Entities;
 using AllowanceFunctions.Services;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
 using System.Threading;
@@ -17,28 +19,52 @@ namespace AllowanceFunctions.Api.AccountSet
 {
     public class GetAccount : Function
     {
-        public GetAccount(DatabaseContext context) : base(context) { }
+        private AccountService _accountService;
 
-        [FunctionName("GetAccountByEmail")]
-        public async Task<Account> Run(
-            [HttpTrigger(Constants.AUTHORIZATION_LEVEL, "get", Route = "accountset/{email}"),] HttpRequest req, string email,
+        public GetAccount(AuthorizationService authorizationService, AccountService accountService)
+            : base(authorizationService)
+        {
+            _accountService = accountService;
+        }
+
+        [FunctionName("GetAccount")]
+        public async Task<IActionResult> Run(
+            [HttpTrigger(Constants.AUTHORIZATION_LEVEL, "get", Route = "accountset"),] HttpRequest req, 
             ILogger log, CancellationToken ct)
         {
-            log.LogTrace($"GetAccount function processed a request with parameter '{email}'.");
+            Guid userIdentifier;
+            List<Account> accountList = null;
 
             try
             {
-                var mailAddress = new MailAddress(email);
+                if (req.Query.ContainsKey("useridentifier"))
+                {
+                    userIdentifier = req.Query.GetValue<Guid>("useridentifier");
+                    log.LogTrace($"GetAccount function processed a request with userIdentifier: '{userIdentifier}'.");
+                    accountList = await _accountService.GetList(userIdentifier);
+                }
+                else if (req.Query.ContainsKey("role"))
+                {
+                    var role = req.Query.GetValue<int>("role");
+                    log.LogTrace($"GetAccount function processed a request with role: '{role}'.");
+                    accountList = await _accountService.GetListByRole(role);
+                }
+                else
+                {
+                    log.LogTrace($"GetAccount function processed a request.");
+                    accountList = await _accountService.GetAllAccounts();
+                }
             }
-            catch (System.Exception)
+            catch (Exception exception)
             {
 
-                throw new ArgumentException($"Email {email} is not a valid email address");
+                return new BadRequestObjectResult($"Error trying to execute GetAccount.  {exception.Message}");
             }
-                       
-            var query = from account in _context.AccountSet where account.Username == email select account;
+
             
-            return await query.FirstOrDefaultAsync();
+          
+
+            return new OkObjectResult(accountList);
         }
 
 

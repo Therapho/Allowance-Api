@@ -11,34 +11,64 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AllowanceFunctions.Common;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AllowanceFunctions.Api.TaskWeekSet
 {
     public class GetTaskWeekList : Function
     {
-        public GetTaskWeekList(DatabaseContext context) : base(context) { }
+        private TaskWeekService _taskWeekService;
+
+        public GetTaskWeekList(AuthorizationService authorizationService, TaskWeekService taskWeekService)
+            : base(authorizationService) { _taskWeekService = taskWeekService; }
 
         [FunctionName("GetTaskWeekList")]
-        public async Task<List<TaskWeek>> Run(
+        public async Task<IActionResult> Run(
             [HttpTrigger(Constants.AUTHORIZATION_LEVEL, "get", Route = "taskweekset")] HttpRequest req, ILogger log)
         {
-            
-            var dateStart = req.Query.GetValueOrDefault<DateTime>("startdate");
-            Ensure.That(dateStart.HasValue).IsTrue();
-            dateStart = dateStart.Value.FirstDayOfWeek();
-            
+            List<TaskWeek> result = null;
+            try
+            {
+                var userIdentifier = await GetTargetUserIdentifier(req);
+                int taskWeekId;
 
-            var dateEnd = req.Query.GetValueOrDefault<DateTime>("enddate");
-            if (!dateEnd.HasValue) dateEnd = dateStart;
-            dateEnd = dateEnd.Value.LastDayOfWeek();
+                if (req.Query.ContainsKey("taskweekid"))
+                {
+                    taskWeekId = req.Query.GetValue<int>("taskweekid");
+                    var taskWeek = await _taskWeekService.Get(taskWeekId);
+                    result = new List<TaskWeek>() { taskWeek };
+                }
+                else
+                {
+                    var dateStart = req.Query.GetValueOrDefault<DateTime>("startdate");
+                    Ensure.That(dateStart.HasValue).IsTrue();
+                    dateStart = dateStart.Value.FirstDayOfWeek();
 
-            log.LogTrace($"GetTaskWeek triggered with Date from {dateStart} to {dateEnd}");
-                    
-            var query = from taskWeek in _context.TaskWeekSet
-                        where taskWeek.WeekStartDate >= dateStart && taskWeek.WeekStartDate <= dateEnd
-                        select taskWeek;
 
-            return await query.ToListAsync();
+                    var dateEnd = req.Query.GetValueOrDefault<DateTime>("enddate");
+                    if (!dateEnd.HasValue) dateEnd = dateStart;
+                    dateEnd = dateEnd.Value.LastDayOfWeek();
+
+                    log.LogTrace($"GetTaskWeek triggered with Date from {dateStart} to {dateEnd}");
+
+                    if (userIdentifier == GetCallingUserIdentifier(req) && await IsParent(req))
+                    {
+                        result = await _taskWeekService.GetListByRange(dateStart, dateEnd);
+                    }
+                    else
+
+                    {
+                        result = await _taskWeekService.GetListByRange(dateStart, dateEnd, userIdentifier);
+                    }
+                }
+                
+            }
+            catch (Exception exception)
+            {
+
+                return new BadRequestObjectResult($"Error trying to execute GetTaskWeekList.  {exception.Message}");
+            }
+            return new OkObjectResult(result);
         }
     }
 }

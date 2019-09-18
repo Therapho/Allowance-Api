@@ -2,6 +2,7 @@
 using AllowanceFunctions.Entities;
 using AllowanceFunctions.Services;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
@@ -12,12 +13,12 @@ using System.Threading.Tasks;
 
 namespace AllowanceFunctions.Api.Lookups
 {
-    public class GetTransactionCategoryList : LookupService<TransactionCategory>
+    public class GetTransactionCategoryList : LookupFunction<TransactionCategory>
     {
-        public GetTransactionCategoryList(DatabaseContext context) : base(context) { }
+        public GetTransactionCategoryList(DatabaseContext databaseContext) : base(databaseContext) { }
 
         [FunctionName("GetTransactionCategoryList")]
-        public async Task<List<TransactionCategory>> Run(
+        public async Task<IActionResult> Run(
             [HttpTrigger(Constants.AUTHORIZATION_LEVEL, "get", Route = "lookups/transactioncategoryset"),] HttpRequest req, ILogger log)
         {
             return await RunInternal(log);

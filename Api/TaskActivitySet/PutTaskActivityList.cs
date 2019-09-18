@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,7 +19,10 @@ namespace AllowanceFunctions.Api.TaskActivitySet
 {
     public class PutTaskActivityList : Function
     {
-        public PutTaskActivityList(DatabaseContext context) : base(context) { }
+        private TaskActivityService _taskActivityService;
+
+        public PutTaskActivityList(AuthorizationService authorizationService, TaskActivityService taskActivityService)
+            : base(authorizationService) { _taskActivityService = taskActivityService; }
 
         [FunctionName("PutTaskActivitySet")]
         public async Task Run(
@@ -30,10 +34,15 @@ namespace AllowanceFunctions.Api.TaskActivitySet
             if (!requestBody.Contains("[")) requestBody = $"[{requestBody}]";
 
             var data = JsonConvert.DeserializeObject<List<TaskActivity>>(requestBody);
+            var userIdentifier = await GetTargetUserIdentifier(req);
+            if (data[0].UserIdentifier != userIdentifier && ! await IsParent(req))
+            {
+                throw new SecurityException("Invalid attempt to access a record by an invalid user");
+            }
+
             try
             {
-                _context.UpdateRange(data);
-                await _context.SaveChangesAsync(ct);
+                await _taskActivityService.UpdateList(data);
             }
             catch (Exception exception)
             {

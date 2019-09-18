@@ -14,52 +14,56 @@ namespace AllowanceFunctions.Services
     {
         public TaskActivityService(DatabaseContext context) : base(context) { }
 
-        public async Task<List<TaskActivity>> GetList(int accountId, int taskWeekId)
+        public async Task<List<TaskActivity>> GetList(Guid userIdentifier, int taskWeekId)
         {
-            var query = from TaskActivity in _context.TaskActivitySet
-                        where TaskActivity.AccountId == accountId && TaskActivity.TaskWeekId == taskWeekId
-                        select TaskActivity;
+          
 
             List<TaskActivity> result = null;
             try
             {
+                var query = from TaskActivity in _context.TaskActivitySet
+                            where TaskActivity.UserIdentifier == userIdentifier && TaskActivity.TaskWeekId == taskWeekId
+                            orderby TaskActivity.Sequence
+                            select TaskActivity;
                 result = await query.ToListAsync();
             }
             catch (Exception exception)
             {
                 throw new DataException(
-                    $"Error trying to retrieve a list of TaskActivitys with accountId: {accountId}, taskWeekId: {taskWeekId}.  {exception.Message}", 
+                    $"Error trying to retrieve a list of TaskActivitys with userIdentifier: {userIdentifier}, taskWeekId: {taskWeekId}.  {exception.Message}", 
                     exception);
             }
             return result;
         }
 
-        public async Task<List<TaskActivity>> CreateList(int accountId, List<TaskDay> taskDayList, List<TaskDefinition> taskDefinitionList)
+        public async Task<List<TaskActivity>> CreateList(Guid userIdentifier, List<TaskDay> taskDayList, List<TaskDefinition> taskDefinitionList)
         {
 
             var taskActivityList = new List<TaskActivity>();
-
+            int day = 1;
             foreach (var taskDay in taskDayList)
             {
+                
                 foreach (var taskDefinition in taskDefinitionList)
                 {
                     var taskActivity = new TaskActivity()
                     {
-                        AccountId = accountId,
+                        UserIdentifier = userIdentifier,
                         TaskDayId = taskDay.Id.Value,
                         TaskWeekId = taskDay.TaskWeekId,
                         TaskGroupId = taskDefinition.TaskGroupId,
-                        Description = taskDefinition.Description,
                         Sequence = taskDefinition.Sequence,
-                        Value = taskDefinition.Value,
-                        StatusId = (int)Constants.ActivityStatus.Incomplete
+                        StatusId = (int)Constants.ActivityStatus.Incomplete,
+                        TaskDefinitionId = taskDefinition.Id.Value,
+                        DaySequence = day
                         
                     };
                     taskActivityList.Add(taskActivity);
                 }
+                day++;
             }
 
-            await CreateOrUpdateList(taskActivityList);
+            await CreateList(taskActivityList);
 
 
             return taskActivityList;

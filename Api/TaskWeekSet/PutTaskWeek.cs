@@ -1,14 +1,14 @@
 ﻿using AllowanceFunctions.Common;
 using AllowanceFunctions.Entities;
 using AllowanceFunctions.Services;
-using EnsureThat;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,31 +16,36 @@ namespace AllowanceFunctions.Api.TaskWeekSet
 {
     public class PutTaskWeek : Function
     {
-        public PutTaskWeek(DatabaseContext context) : base(context) { }
+        private TaskWeekService _taskWeekService;
 
+        public PutTaskWeek(DatabaseContext context, AuthorizationService authorizationService, TaskWeekService taskWeekService)
+            : base(authorizationService) { _taskWeekService = taskWeekService; }
         [FunctionName("PutTaskWeek")]
-        public async Task<int> Run(
+        public async Task<IActionResult> Run(
             [HttpTrigger(Constants.AUTHORIZATION_LEVEL, "put", Route = "taskweekset/{id?}")] HttpRequest req, ILogger log, CancellationToken ct, int? id )
         {
             log.LogTrace($"PutTaskWeek function processed a request for id:{id}.");
-           
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var data = JsonConvert.DeserializeObject<TaskWeek>(requestBody);
-            //data.WeekStartDate = data.WeekStartDate.FirstDayOfWeek();
 
-            if(id.HasValue) Ensure.That(data.Id = id.Value);
+            TaskWeek data = null;
 
             try
             {
-                await _context.AddAsync(data);
-                await _context.SaveChangesAsync(ct);
+                string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+                data = JsonConvert.DeserializeObject<TaskWeek>(requestBody);
+                var userIdentifier = await GetTargetUserIdentifier(req);
+                if (data.UserIdentifier != userIdentifier && ! await IsInRole(userIdentifier, Constants.Role.Parent))
+                {
+                    throw new SecurityException("Invalid attempt to access a record by an invalid user");
+                }
+                await _taskWeekService.Update(data);
+
             }
             catch (Exception exception)
             {
 
-                log.LogError($"Exception {exception.Message} occurred");
+                return new BadRequestObjectResult($"Error trying to execute PutTaskWeek.  {exception.Message}");
             }
-            return data.Id.Value;
+            return new OkObjectResult( data.Id.Value);
         }
 
     }

@@ -3,6 +3,7 @@ using System.Configuration;
 using AllowanceFunctions.Services;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
@@ -27,13 +28,19 @@ namespace AllowanceFunctions
             //builder.Services.AddSingleton((s) => {
             //    return context;
             //});
+            var cache = new MemoryCache(new MemoryCacheOptions());
+
             builder.Services.AddDbContext<DatabaseContext>(
                 options => SqlServerDbContextOptionsExtensions.UseSqlServer(options, connectionString));
             builder.Services
                 .AddTransient<TaskWeekService>()
                 .AddTransient<TaskDefinitionService>()
                 .AddTransient<TaskDayService>()
-                .AddTransient<TaskActivityService>();
+                .AddTransient<TaskActivityService>()
+                .AddTransient<AccountService>()
+                .AddTransient<AuthorizationService>()
+                .AddTransient<TransactionLogService>()
+                .AddSingleton(cache);
         }
     }
 }

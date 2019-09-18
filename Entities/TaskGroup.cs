@@ -9,5 +9,6 @@ namespace AllowanceFunctions.Entities
     [Table("taskgroups")]
     public class TaskGroup  : Lookup
     {
+        public bool Weekly { get; set; }
     }
 }

@@ -2,6 +2,7 @@
 using AllowanceFunctions.Entities;
 using AllowanceFunctions.Services;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.EntityFrameworkCore;
@@ -12,12 +13,12 @@ using System.Threading.Tasks;
 
 namespace AllowanceFunctions.Api.Lookups
 {
-    public class GetActivityStatusList : LookupService<ActivityStatus>
+    public class GetActivityStatusList : LookupFunction<ActivityStatus>
     {
-        public GetActivityStatusList(DatabaseContext context) : base(context) { }
+        public GetActivityStatusList(DatabaseContext databaseContext) : base(databaseContext) { }
 
         [FunctionName("GetActivityStatusList")]
-        public async Task<List<ActivityStatus>> Run(
+        public async Task<IActionResult> Run(
             [HttpTrigger(Constants.AUTHORIZATION_LEVEL, "get", Route = "lookups/activitystatusset"),] HttpRequest req, ILogger log)
         {
             return await RunInternal(log);

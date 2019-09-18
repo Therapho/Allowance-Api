@@ -7,7 +7,11 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -36,10 +40,11 @@ namespace AllowanceFunctions.Api.TaskActivitySet
         {
             var startDate = req.Query.GetValue<DateTime>("weekdstartdate").StartOfDay();
 
-            var accountId = req.Query.GetValue<int>("accountid");
             var taskWeekId = req.Query.GetValue<int>("taskweekid");
 
-            log.LogTrace($"GetTaskActivityListByDay function processed a request for taskWeekId={accountId}, startDate={startDate}.");
+            var userIdentifier = req.GetUserIdentifier();
+
+            log.LogTrace($"GetTaskActivityListByDay function processed a request for userIdentifier={userIdentifier}, startDate={startDate}.");
 
             List<TaskActivity> taskActivityList = null;
 
@@ -51,18 +56,18 @@ namespace AllowanceFunctions.Api.TaskActivitySet
                 if (taskWeekId > 0)
                     taskWeek= await _taskWeekService.Get(taskWeekId);
                 else
-                    taskWeek=await _taskWeekService.GetOrCreate(accountId, startDate);
+                    taskWeek=await _taskWeekService.GetOrCreate(userIdentifier, startDate);
 
-                taskActivityList = await  _taskActivityService.GetList(accountId, taskWeek.Id.Value);
+                taskActivityList = await  _taskActivityService.GetList(userIdentifier, taskWeek.Id.Value);
 
                 if (taskActivityList == null) taskActivityList = new List<TaskActivity>();
 
                 if (taskActivityList.Count() == 0)
                 {
                    
-                    var taskDayList = await _taskDayService.GetOrCreateList(accountId, taskWeek);
+                    var taskDayList = await _taskDayService.GetOrCreateList(userIdentifier, taskWeek);
                     var taskDefinitionList = await _taskDefinitonService.GetList();
-                    taskActivityList = await _taskActivityService.CreateList(accountId, taskDayList, taskDefinitionList);
+                    taskActivityList = await _taskActivityService.CreateList(userIdentifier, taskDayList, taskDefinitionList);
                 }
             }
             catch(Exception exception)

@@ -24,6 +24,7 @@ namespace AllowanceFunctions.Services
             try
             {
                 var query = from entity in _context.Set<TEntity>()
+                            where entity.Id == id
                             select entity;
 
                 result = await query.FirstOrDefaultAsync();
@@ -37,12 +38,42 @@ namespace AllowanceFunctions.Services
             return result;
         }
 
-        public async Task<int?> CreateOrUpdate(TEntity entity)
+        //public async Task<int?> CreateOrUpdate(TEntity entity)
+        //{
+        //    try
+        //    {
+        //        await _context.Set<TEntity>().AddAsync(entity);
+        //        await _context.SaveChangesAsync();
+        //    }
+        //    catch (Exception exception)
+        //    {
+
+        //        throw new DataException($"Error trying to CreateOrUpdate for {typeof(TEntity).Name}.  {exception.Message}", exception);
+        //    }
+        //    return entity.Id;
+        //}
+
+        //public async Task CreateOrUpdateList(List<TEntity> entityList)
+        //{
+        //    try
+        //    {
+        //        await _context.Set<TEntity>().AddRangeAsync(entityList);
+        //        await _context.SaveChangesAsync();
+        //    }
+        //    catch (Exception exception)
+        //    {
+
+        //        throw new DataException($"Error trying to CreateOrUpdateList for {typeof(TEntity).Name}.  {exception.Message}", exception);
+        //    }
+
+
+        //}
+        public async Task<int?> Create(TEntity entity, bool saveChanges = true)
         {
             try
             {
                 await _context.Set<TEntity>().AddAsync(entity);
-                await _context.SaveChangesAsync();
+                if(saveChanges) await _context.SaveChangesAsync();
             }
             catch (Exception exception)
             {
@@ -52,12 +83,12 @@ namespace AllowanceFunctions.Services
             return entity.Id;
         }
 
-        public async Task CreateOrUpdateList(List<TEntity> entityList)
+        public async Task CreateList(List<TEntity> entityList, bool saveChanges = true)
         {
             try
             {
                 await _context.Set<TEntity>().AddRangeAsync(entityList);
-                await _context.SaveChangesAsync();
+                if(saveChanges) await _context.SaveChangesAsync();
             }
             catch (Exception exception)
             {
@@ -67,6 +98,39 @@ namespace AllowanceFunctions.Services
 
 
         }
+        public async Task<int?> Update(TEntity entity, bool saveChanges = true)
+        {
+            try
+            {
+                _context.Set<TEntity>().Update(entity);
+                if(saveChanges) await _context.SaveChangesAsync();
+            }
+            catch (Exception exception)
+            {
 
+                throw new DataException($"Error trying to CreateOrUpdate for {typeof(TEntity).Name}.  {exception.Message}", exception);
+            }
+            return entity.Id;
+        }
+
+        public async Task UpdateList(List<TEntity> entityList , bool saveChanges = true)
+        {
+            try
+            {
+                _context.Set<TEntity>().UpdateRange(entityList);
+                if(saveChanges) await _context.SaveChangesAsync();
+            }
+            catch (Exception exception)
+            {
+
+                throw new DataException($"Error trying to CreateOrUpdateList for {typeof(TEntity).Name}.  {exception.Message}", exception);
+            }
+
+
+        }
+        public async Task SaveChanges()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 }
