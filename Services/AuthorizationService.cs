@@ -19,19 +19,24 @@ namespace AllowanceFunctions.Services
             _accountService = accountService;
             _cache = cache;
         }
-
-        public async Task<bool>  IsInRole(Guid userIdentifier, Constants.Role role)
+        public async Task<Account> GetAccount(Guid userIdentifier)
         {
-            var result = false;
-
             Account account = _cache.Get<Account>(userIdentifier);
-            if(account == null)
+            if (account == null)
             {
                 account = await _accountService.GetByUser(userIdentifier);
                 _cache.Set(userIdentifier, account);
             }
+            return account;
+        }
+        public async Task<bool>  IsInRole(Guid userIdentifier, Constants.Role role)
+        {
+            var result = false;
+
+            var account = await GetAccount(userIdentifier);
             result = account.RoleId == (int)role;
             return result;
         }
+
     }
 }

@@ -11,6 +11,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -18,15 +19,16 @@ using System.Web.Http;
 
 namespace AllowanceFunctions.Api.TaskActivitySet
 {
-    public class GetOrCreateTaskActivityList     
+    public class GetOrCreateTaskActivityList :Function
     {
         private TaskWeekService _taskWeekService;
         private TaskDefinitionService _taskDefinitonService;
         private TaskDayService _taskDayService;
         private TaskActivityService _taskActivityService;
 
-        public GetOrCreateTaskActivityList(TaskWeekService taskWeekService, TaskDefinitionService taskDefinitionService, 
-            TaskDayService taskDayService, TaskActivityService taskActivityService)
+        public GetOrCreateTaskActivityList(AuthorizationService authorizationService, 
+            TaskWeekService taskWeekService, TaskDefinitionService taskDefinitionService, 
+            TaskDayService taskDayService, TaskActivityService taskActivityService):base(authorizationService)
         {
             _taskWeekService = taskWeekService;
             _taskDefinitonService = taskDefinitionService;
@@ -38,13 +40,14 @@ namespace AllowanceFunctions.Api.TaskActivitySet
         public async Task<IActionResult> Run(
             [HttpTrigger(Constants.AUTHORIZATION_LEVEL, "get", Route = "getorcreatetaskactivitylist"),] HttpRequest req, ILogger log)
         {
-            var startDate = req.Query.GetValue<DateTime>("weekdstartdate").StartOfDay();
+            var startDate = req.Query.GetValue<DateTime>("weekstartdate").StartOfDay();
 
             var taskWeekId = req.Query.GetValue<int>("taskweekid");
 
-            var userIdentifier = req.GetUserIdentifier();
-
-            log.LogTrace($"GetTaskActivityListByDay function processed a request for userIdentifier={userIdentifier}, startDate={startDate}.");
+            
+            var callingUserIdentifier = req.GetUserIdentifier();
+            
+            log.LogTrace($"GetTaskActivityListByDay function processed a request by userIdentifier={callingUserIdentifier}, startDate={startDate}.");
 
             List<TaskActivity> taskActivityList = null;
 
@@ -54,23 +57,30 @@ namespace AllowanceFunctions.Api.TaskActivitySet
                 TaskWeek taskWeek = null;
 
                 if (taskWeekId > 0)
-                    taskWeek= await _taskWeekService.Get(taskWeekId);
-                else
-                    taskWeek=await _taskWeekService.GetOrCreate(userIdentifier, startDate);
-
-                taskActivityList = await  _taskActivityService.GetList(userIdentifier, taskWeek.Id.Value);
-
-                if (taskActivityList == null) taskActivityList = new List<TaskActivity>();
-
-                if (taskActivityList.Count() == 0)
                 {
-                   
-                    var taskDayList = await _taskDayService.GetOrCreateList(userIdentifier, taskWeek);
-                    var taskDefinitionList = await _taskDefinitonService.GetList();
-                    taskActivityList = await _taskActivityService.CreateList(userIdentifier, taskDayList, taskDefinitionList);
+                    taskWeek = await _taskWeekService.Get(taskWeekId);
+                    if (taskWeek.UserIdentifier != callingUserIdentifier &&
+                    !await _authorizationService.IsInRole(callingUserIdentifier, Constants.Role.Parent))
+                    {
+                        var targetAccount = await _authorizationService.GetAccount(taskWeek.UserIdentifier);
+                        var callingAccount = await _authorizationService.GetAccount(callingUserIdentifier);
+                        throw new SecurityException($"Unauthorized access of taskweek for  {targetAccount.Name} by {callingAccount.Name}");
+                    }
                 }
+                else
+                {
+                    if (await _authorizationService.IsInRole(callingUserIdentifier, Constants.Role.Parent))
+                    {
+                        throw new SecurityException("Invalid attempt by parent to retrieve or create a taskweek by date");
+                    }
+                    taskWeek = await _taskWeekService.GetOrCreate(callingUserIdentifier, startDate);
+
+                }
+                    
+
+                taskActivityList = await _taskActivityService.GetOrCreate(taskWeek);
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 return new BadRequestObjectResult(new BadRequestErrorMessageResult(exception.Message));
             }

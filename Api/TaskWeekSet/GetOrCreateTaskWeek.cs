@@ -51,7 +51,7 @@ namespace AllowanceFunctions.Api.TaskWeekSet
                 {
                     throw new SecurityException("Invalid attempt to access a record by an invalid user");
                 }
-                await _taskDayService.GetOrCreateList(userIdentifier, taskWeek);
+                await _taskDayService.GetOrCreateList( taskWeek);
             }
 
             catch (Exception exception)

@@ -14,10 +14,10 @@ namespace AllowanceFunctions.Services
     {
         public TaskDayService(DatabaseContext context) : base(context) { }
 
-        public async Task<List<TaskDay>> GetList(Guid userIdentifier, int taskWeekId)
+        public async Task<List<TaskDay>> GetList(int taskWeekId)
         {
             var query = from taskDay in _context.TaskDaySet
-                        where taskDay.UserIdentifier == userIdentifier && taskDay.TaskWeekId == taskWeekId
+                        where taskDay.TaskWeekId == taskWeekId
                         select taskDay;
 
             List<TaskDay> result = null;
@@ -28,15 +28,15 @@ namespace AllowanceFunctions.Services
             catch (Exception exception)
             {
                 throw new DataException(
-                    $"Error trying to retrieve a list of TaskDays with userIdentifier: {userIdentifier}, taskWeekId: {taskWeekId}.  {exception.Message}", 
+                    $"Error trying to retrieve a list of TaskDays with taskWeekId: {taskWeekId}.  {exception.Message}", 
                     exception);
             }
             return result;
         }
 
-        public async Task<List<TaskDay>> GetOrCreateList(Guid userIdentifier, TaskWeek taskWeek)
+        public async Task<List<TaskDay>> GetOrCreateList(TaskWeek taskWeek)
         {
-            var taskDayList = await GetList(userIdentifier, taskWeek.Id.Value);
+            var taskDayList = await GetList(taskWeek.Id.Value);
 
             if (taskDayList == null || taskDayList.Count() == 0)
             {
@@ -47,7 +47,7 @@ namespace AllowanceFunctions.Services
                     DateTime date = taskWeek.WeekStartDate.AddDays(day);
                     var taskDay = new TaskDay()
                     {
-                        UserIdentifier = userIdentifier,
+                        UserIdentifier = taskWeek.UserIdentifier,
                         TaskWeekId = taskWeek.Id.Value,
                         Date = date,
                         StatusId = (int)Constants.Status.Open
