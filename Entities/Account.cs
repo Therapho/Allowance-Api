@@ -12,6 +12,7 @@ namespace AllowanceFunctions.Entities
         public decimal Balance { get; set; }
         public Guid UserIdentifier { get; set; }
         public string Name { get; set; }
+        public int? ActiveTaskWeekId { get; set; }
 
     }
     

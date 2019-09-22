@@ -35,20 +35,15 @@ namespace AllowanceFunctions.Services
            
         }
 
-        public async Task<TaskWeek> GetOrCreate(Guid userIdentifier, DateTime dateStart)
+        public async Task<TaskWeek> Create(Guid userIdentifier, DateTime dateStart)
         {
-            var taskWeek = await Get(userIdentifier, dateStart);
-
-            if(taskWeek == null)
+            var taskWeek = new TaskWeek()
             {
-                taskWeek = new TaskWeek()
-                {
-                    UserIdentifier = userIdentifier,
-                    WeekStartDate = dateStart,
-                    StatusId = (int)Constants.Status.Open
-                };
-                await Create(taskWeek);
-            }
+                UserIdentifier = userIdentifier,
+                WeekStartDate = dateStart,
+                StatusId = (int)Constants.Status.Open
+            };
+            await Create(taskWeek);
 
             return taskWeek;
         }

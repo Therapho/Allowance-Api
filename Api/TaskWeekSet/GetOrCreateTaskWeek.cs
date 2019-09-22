@@ -21,14 +21,17 @@ namespace AllowanceFunctions.Api.TaskWeekSet
         private TaskDefinitionService _taskDefinitonService;
         private TaskDayService _taskDayService;
         private TaskActivityService _taskActivityService;
+        private AccountService _accountService;
 
-        public GetOrCreateTaskWeek(AuthorizationService authorizationService, TaskWeekService taskWeekService, TaskDefinitionService taskDefinitionService,
+        public GetOrCreateTaskWeek(AuthorizationService authorizationService, 
+            TaskWeekService taskWeekService, TaskDefinitionService taskDefinitionService, AccountService accountService,
             TaskDayService taskDayService, TaskActivityService taskActivityService) : base(authorizationService)
         {
             _taskWeekService = taskWeekService;
             _taskDefinitonService = taskDefinitionService;
             _taskDayService = taskDayService;
             _taskActivityService = taskActivityService;
+            _accountService = accountService;
         }
         [FunctionName("GetOrCreateTaskWeek")]
         public async Task<IActionResult> Run(
@@ -46,7 +49,21 @@ namespace AllowanceFunctions.Api.TaskWeekSet
             {
                 Ensure.That(req.Query.ContainsKey("startdate")).IsTrue();
                 
-                taskWeek = await _taskWeekService.GetOrCreate(userIdentifier, startDate);
+                taskWeek = await _taskWeekService.Get(userIdentifier, startDate);
+                if(taskWeek == null)
+                {
+                    var callingAccount = await _authorizationService.GetAccount(userIdentifier);
+                    if(await IsParent(req))
+                    {
+                        throw new SecurityException($"Invalid attempt by {callingAccount.Name} to create a new task week.");
+
+                    }
+                    taskWeek = await _taskWeekService.Create(userIdentifier, startDate);
+                    var account = await _accountService.GetByUser(userIdentifier);
+                    account.ActiveTaskWeekId = taskWeek.Id;
+                    await _accountService.Update(account);
+                }
+
                 if (taskWeek.UserIdentifier != userIdentifier && ! await IsInRole(userIdentifier, Constants.Role.Parent))
                 {
                     throw new SecurityException("Invalid attempt to access a record by an invalid user");

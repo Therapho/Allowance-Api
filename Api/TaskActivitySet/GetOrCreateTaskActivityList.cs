@@ -73,7 +73,7 @@ namespace AllowanceFunctions.Api.TaskActivitySet
                     {
                         throw new SecurityException("Invalid attempt by parent to retrieve or create a taskweek by date");
                     }
-                    taskWeek = await _taskWeekService.GetOrCreate(callingUserIdentifier, startDate);
+                    taskWeek = await _taskWeekService.Get(callingUserIdentifier, startDate);
 
                 }
                     
