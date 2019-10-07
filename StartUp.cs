@@ -35,7 +35,6 @@ namespace AllowanceFunctions
             builder.Services
                 .AddTransient<TaskWeekService>()
                 .AddTransient<TaskDefinitionService>()
-                .AddTransient<TaskDayService>()
                 .AddTransient<TaskActivityService>()
                 .AddTransient<AccountService>()
                 .AddTransient<AuthorizationService>()

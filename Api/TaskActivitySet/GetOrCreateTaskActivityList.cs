@@ -23,16 +23,13 @@ namespace AllowanceFunctions.Api.TaskActivitySet
     {
         private TaskWeekService _taskWeekService;
         private TaskDefinitionService _taskDefinitonService;
-        private TaskDayService _taskDayService;
         private TaskActivityService _taskActivityService;
 
         public GetOrCreateTaskActivityList(AuthorizationService authorizationService, 
-            TaskWeekService taskWeekService, TaskDefinitionService taskDefinitionService, 
-            TaskDayService taskDayService, TaskActivityService taskActivityService):base(authorizationService)
+            TaskWeekService taskWeekService, TaskDefinitionService taskDefinitionService,  TaskActivityService taskActivityService):base(authorizationService)
         {
             _taskWeekService = taskWeekService;
             _taskDefinitonService = taskDefinitionService;
-            _taskDayService = taskDayService;
             _taskActivityService = taskActivityService;
         }
 

@@ -19,17 +19,15 @@ namespace AllowanceFunctions.Api.TaskWeekSet
     {
         private TaskWeekService _taskWeekService;
         private TaskDefinitionService _taskDefinitonService;
-        private TaskDayService _taskDayService;
         private TaskActivityService _taskActivityService;
         private AccountService _accountService;
 
         public GetOrCreateTaskWeek(AuthorizationService authorizationService, 
             TaskWeekService taskWeekService, TaskDefinitionService taskDefinitionService, AccountService accountService,
-            TaskDayService taskDayService, TaskActivityService taskActivityService) : base(authorizationService)
+            TaskActivityService taskActivityService) : base(authorizationService)
         {
             _taskWeekService = taskWeekService;
             _taskDefinitonService = taskDefinitionService;
-            _taskDayService = taskDayService;
             _taskActivityService = taskActivityService;
             _accountService = accountService;
         }
@@ -68,7 +66,7 @@ namespace AllowanceFunctions.Api.TaskWeekSet
                 {
                     throw new SecurityException("Invalid attempt to access a record by an invalid user");
                 }
-                await _taskDayService.GetOrCreateList( taskWeek);
+
             }
 
             catch (Exception exception)

@@ -11,12 +11,16 @@ namespace AllowanceFunctions.Entities
     {
 
         public int TaskGroupId { get; set; }
-        public int TaskDayId { get; set; }
         public int Sequence { get; set; }
         public int TaskWeekId { get; set; }
-        public int StatusId { get; set; }
+        public int MondayStatusId { get; set; }
+        public int TuesdayStatusId { get; set; }
+        public int WednesdayStatusId { get; set; }
+        public int ThursdayStatusId { get; set; }
+        public int FridayStatusId { get; set; }
+        public int SaturdayStatusId { get; set; }
+        public int SundayStatusId { get; set; }
         public int TaskDefinitionId { get; set; }
-        public int DaySequence { get; set; }
         public Guid UserIdentifier { get; set; }
     }
 }

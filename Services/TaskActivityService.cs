@@ -12,14 +12,11 @@ namespace AllowanceFunctions.Services
 {
     public class TaskActivityService : EntityService<TaskActivity>
     {
-        private TaskDayService _taskDayService;
         private TaskDefinitionService _taskDefinitonService;
 
         public TaskActivityService(DatabaseContext context, 
-            TaskDayService taskDayService, 
             TaskDefinitionService  taskDefinitonService) : base(context)
         {
-            _taskDayService = taskDayService;
             _taskDefinitonService = taskDefinitonService;
         }
 
@@ -45,34 +42,32 @@ namespace AllowanceFunctions.Services
             return result;
         }
 
-        public async Task<List<TaskActivity>> CreateList(List<TaskDay> taskDayList, List<TaskDefinition> taskDefinitionList)
+        public async Task<List<TaskActivity>> CreateList(TaskWeek taskWeek, List<TaskDefinition> taskDefinitionList)
         {
 
             var taskActivityList = new List<TaskActivity>();
-            int day = 1;
-            foreach (var taskDay in taskDayList)
+
+            foreach (var taskDefinition in taskDefinitionList)
             {
-                foreach (var taskDefinition in taskDefinitionList)
+                var taskActivity = new TaskActivity()
                 {
-                    var taskActivity = new TaskActivity()
-                    {
-                        UserIdentifier = taskDay.UserIdentifier,
-                        TaskDayId = taskDay.Id.Value,
-                        TaskWeekId = taskDay.TaskWeekId,
-                        TaskGroupId = taskDefinition.TaskGroupId,
-                        Sequence = taskDefinition.Sequence,
-                        StatusId = (int)Constants.ActivityStatus.Incomplete,
-                        TaskDefinitionId = taskDefinition.Id.Value,
-                        DaySequence = day
-                        
-                    };
-                    taskActivityList.Add(taskActivity);
-                }
-                day++;
+                    UserIdentifier = taskWeek.UserIdentifier,
+                    TaskWeekId = taskWeek.Id.Value,
+                    TaskGroupId = taskDefinition.TaskGroupId,
+                    Sequence = taskDefinition.Sequence,
+                    MondayStatusId = (int)Constants.ActivityStatus.Incomplete,
+                    TuesdayStatusId = (int)Constants.ActivityStatus.Incomplete,
+                    WednesdayStatusId = (int)Constants.ActivityStatus.Incomplete,
+                    ThursdayStatusId = (int)Constants.ActivityStatus.Incomplete,
+                    FridayStatusId = (int)Constants.ActivityStatus.Incomplete,
+                    SaturdayStatusId = (int)Constants.ActivityStatus.Incomplete,
+                    SundayStatusId = (int)Constants.ActivityStatus.Incomplete,
+                    TaskDefinitionId = taskDefinition.Id.Value
+
+                };
+                taskActivityList.Add(taskActivity);
             }
-
             await CreateList(taskActivityList);
-
 
             return taskActivityList;
         }
@@ -86,9 +81,8 @@ namespace AllowanceFunctions.Services
             if (taskActivityList.Count() == 0)
             {
 
-                var taskDayList = await _taskDayService.GetOrCreateList(taskWeek);
                 var taskDefinitionList = await _taskDefinitonService.GetList();
-                taskActivityList = await CreateList(taskDayList, taskDefinitionList);
+                taskActivityList = await CreateList(taskWeek, taskDefinitionList);
             }
 
             return taskActivityList;
